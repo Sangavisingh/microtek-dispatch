@@ -4,16 +4,12 @@ import { useLocalSearchParams, Link } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const Details: React.FC = () => {
-  // Retrieve all query parameters
-  const { scannedValue, qnty } = useLocalSearchParams();
-
-  // Convert qnty to number, default to 0 if undefined
+  const { scannedValues, qnty } = useLocalSearchParams();
   const quantity = qnty ? Number(qnty) : 0;
-  console.log('dispatch')
+  const scannedArray = scannedValues ? JSON.parse(scannedValues as string) : [];
+
   return (
     <View style={styles.container}>
-
-      {/* Buttons for validation and clearing */}
       <View style={styles.buttonContainer}>
         <View style={styles.buttonWrapper}>
           <Button title="Validate All" color="#ffffff" onPress={() => { /* Handle press */ }} />
@@ -23,14 +19,19 @@ const Details: React.FC = () => {
         </View>
       </View>
       <LinearGradient
-        colors={['#325180', '#203C58']} // Light blue to dark blue
+        colors={['#325180', '#203C58']}
         style={styles.productContainer}
       >
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultText}>Scanned Value: {scannedValue}</Text>
-        </View>
+        {scannedArray.length > 0 ? (
+          scannedArray.map((value: string, index: number) => (
+            <View key={index} style={styles.resultItem}>
+              <Text style={styles.resultText}>Scanned Value {index + 1}: {value}</Text>
+            </View>
+          ))
+        ) : (
+          <Text style={styles.noScanText}>No QR codes scanned yet.</Text>
+        )}
       </LinearGradient>
-      {/* Footer with link to Scanner page */}
       <View style={styles.footer}>
         <Link href={`/Scanner?qnty=${quantity}`} style={styles.qntyLink}>
           <Text style={styles.qntyText}>Scan for Quantity: {isNaN(quantity) ? 'N/A' : quantity}</Text>
@@ -47,11 +48,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 10,
   },
-  resultContainer: {
-    marginBottom: 20,
+  resultItem: {
+    marginBottom: 10, 
+    padding: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
   },
   resultText: {
     fontSize: 18,
+  },
+  noScanText: {
+    fontSize: 18,
+    color: '#ffffff',
   },
   buttonContainer: {
     flexDirection: 'row',

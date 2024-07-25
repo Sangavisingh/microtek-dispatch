@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Text, View, StyleSheet, Alert, Button } from 'react-native';
 import { Camera, CameraView, BarcodeScanningResult } from 'expo-camera';
-import { Link } from 'expo-router';
+import { useLocalSearchParams, Link } from 'expo-router';
 
 const Scanner: React.FC = () => {
+  const { qnty } = useLocalSearchParams();
+  const quantity = qnty ? Number(qnty) : 0;
+
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [scannedValue, setScannedValue] = useState<string | null>(null);
-  const [scanned, setScanned] = useState(false);
-  
+  const [scannedValues, setScannedValues] = useState<string[]>([]);
+  const [alertShown, setAlertShown] = useState(false);
+  const scanCountRef = useRef(0); 
+
   useEffect(() => {
     const getCameraPermissions = async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -18,12 +22,30 @@ const Scanner: React.FC = () => {
   }, []);
 
   const handleBarCodeScanned = (result: BarcodeScanningResult) => {
-    if (!scanned) {
+    if (scanCountRef.current < quantity) {
       const { data } = result;
-      Alert.alert('QR Code Scanned', `Scanned Value: ${data}`);
-      setScannedValue(data); // Store the scanned value
-      setScanned(true); // Prevent scanning again until reset
+      setScannedValues(prevValues => {
+        const newValues = [...prevValues, data];
+        console.log('Scanned Values Length:', newValues.length);
+        return newValues;
+      });
+      scanCountRef.current += 1; 
+      console.log('Current Scan Count:', scanCountRef.current);
+
+      if (!alertShown) {
+        Alert.alert('QR Code Scanned', `Scanned Value: ${data}`);
+        setAlertShown(true);
+      }
+    } else if (scanCountRef.current >= quantity && !alertShown) {
+      Alert.alert('Scan Limit Reached', `You can only scan ${quantity} QR codes.`);
+      setAlertShown(true);
     }
+  };
+
+  const resetScan = () => {
+    setScannedValues([]);
+    scanCountRef.current = 0; 
+    setAlertShown(false);
   };
 
   if (hasPermission === null) {
@@ -39,18 +61,15 @@ const Scanner: React.FC = () => {
         style={StyleSheet.absoluteFillObject}
         onBarcodeScanned={handleBarCodeScanned}
         barcodeScannerSettings={{
-          barcodeTypes: ['qr'], // Only QR codes
+          barcodeTypes: ['qr'],
         }}
       />
-      {scannedValue && (
+      {scannedValues.length > 0 && (
         <View style={styles.resultContainer}>
-          <Link href={`/Details?scannedValue=${encodeURIComponent(scannedValue)}`}>
-            <Text style={styles.resultText}>Scanned Value: {scannedValue}</Text>
+          <Link href={`/Details?scannedValues=${encodeURIComponent(JSON.stringify(scannedValues))}&qnty=${quantity - scanCountRef.current}`}>
+            <Text style={styles.resultText}>Scanned {scannedValues.length} QR codes</Text>
           </Link>
-          <Button title="Scan Again" onPress={() => {
-            setScanned(false); // Reset scanning state
-            setScannedValue(null); // Clear scanned value
-          }} />
+          <Button title="Scan Again" onPress={resetScan} />
         </View>
       )}
     </View>
