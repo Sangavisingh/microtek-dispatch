@@ -6,13 +6,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 const Details: React.FC = () => {
   // Retrieve all query parameters
   const { scannedValue, qnty } = useLocalSearchParams();
-   
+
   // Convert qnty to number, default to 0 if undefined
   const quantity = qnty ? Number(qnty) : 0;
-
+  console.log('dispatch')
   return (
     <View style={styles.container}>
-     
+
       {/* Buttons for validation and clearing */}
       <View style={styles.buttonContainer}>
         <View style={styles.buttonWrapper}>
@@ -23,12 +23,12 @@ const Details: React.FC = () => {
         </View>
       </View>
       <LinearGradient
-       colors={['#325180', '#203C58']} // Light blue to dark blue
+        colors={['#325180', '#203C58']} // Light blue to dark blue
         style={styles.productContainer}
-       >
-       <View style={styles.resultContainer}>
-        <Text style={styles.resultText}>Scanned Value: {scannedValue}</Text>
-      </View>
+      >
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultText}>Scanned Value: {scannedValue}</Text>
+        </View>
       </LinearGradient>
       {/* Footer with link to Scanner page */}
       <View style={styles.footer}>
