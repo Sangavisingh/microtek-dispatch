@@ -6,7 +6,24 @@ import { LinearGradient } from 'expo-linear-gradient';
 const Details: React.FC = () => {
   const { scannedValues, qnty } = useLocalSearchParams();
   const quantity = qnty ? Number(qnty) : 0;
-  const scannedArray = scannedValues ? JSON.parse(scannedValues as string) : [];
+
+  
+  const scannedArray = scannedValues ? JSON.parse(decodeURIComponent(scannedValues as string)) : [];
+
+  
+  const extractSerialNumber = (qrCodeData: string) => {
+   
+    const urlMatch = qrCodeData.match(/i=([^&]+)/);
+    if (urlMatch) {
+      return urlMatch[1]; 
+    }
+
+    
+    const parts = qrCodeData.split('/');
+    return parts.pop() || qrCodeData; 
+  };
+
+  const serialNumbers = scannedArray.map((value: string) => extractSerialNumber(value));
 
   return (
     <View style={styles.container}>
@@ -22,10 +39,10 @@ const Details: React.FC = () => {
         colors={['#325180', '#203C58']}
         style={styles.productContainer}
       >
-        {scannedArray.length > 0 ? (
-          scannedArray.map((value: string, index: number) => (
+        {serialNumbers.length > 0 ? (
+          serialNumbers.map((value: string, index: number) => (
             <View key={index} style={styles.resultItem}>
-              <Text style={styles.resultText}>Scanned Value {index + 1}: {value}</Text>
+              <Text style={styles.resultText}>Item {index + 1}: {value}</Text>
             </View>
           ))
         ) : (
@@ -49,7 +66,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   resultItem: {
-    marginBottom: 10, 
+    marginBottom: 10,
     padding: 10,
     backgroundColor: '#ffffff',
     borderRadius: 8,

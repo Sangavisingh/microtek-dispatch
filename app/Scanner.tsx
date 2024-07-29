@@ -9,8 +9,9 @@ const Scanner: React.FC = () => {
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scannedValues, setScannedValues] = useState<string[]>([]);
-  const [alertShown, setAlertShown] = useState(false);
-  const scanCountRef = useRef(0); 
+  const [alertShown, setAlertShown] = useState<boolean>(false);
+  const scanCountRef = useRef<number>(0);
+  const scanningInProgress = useRef<boolean>(false);  // Add scanningInProgress flag
 
   useEffect(() => {
     const getCameraPermissions = async () => {
@@ -22,30 +23,39 @@ const Scanner: React.FC = () => {
   }, []);
 
   const handleBarCodeScanned = (result: BarcodeScanningResult) => {
-    if (scanCountRef.current < quantity) {
+    if (scanCountRef.current < quantity && !scanningInProgress.current) {
+      scanningInProgress.current = true;  // Set flag to true to prevent duplicate scans
+
       const { data } = result;
       setScannedValues(prevValues => {
         const newValues = [...prevValues, data];
         console.log('Scanned Values Length:', newValues.length);
         return newValues;
       });
-      scanCountRef.current += 1; 
+      scanCountRef.current += 1;
       console.log('Current Scan Count:', scanCountRef.current);
 
-      if (!alertShown) {
+      if (scanCountRef.current >= quantity && !alertShown) {
+        Alert.alert('Scan Limit Reached', `You can only scan ${quantity} QR codes.`);
+        setAlertShown(true);
+      } else if (!alertShown) {
         Alert.alert('QR Code Scanned', `Scanned Value: ${data}`);
         setAlertShown(true);
       }
-    } else if (scanCountRef.current >= quantity && !alertShown) {
-      Alert.alert('Scan Limit Reached', `You can only scan ${quantity} QR codes.`);
-      setAlertShown(true);
+
+      // Reset the flag after a short delay
+      setTimeout(() => {
+        scanningInProgress.current = false;
+        setAlertShown(false); // Reset alertShown flag to allow showing future alerts
+      }, 1000);  // Adjust delay as necessary
     }
   };
 
   const resetScan = () => {
     setScannedValues([]);
-    scanCountRef.current = 0; 
+    scanCountRef.current = 0;
     setAlertShown(false);
+    scanningInProgress.current = false;  // Reset the scanningInProgress flag
   };
 
   if (hasPermission === null) {

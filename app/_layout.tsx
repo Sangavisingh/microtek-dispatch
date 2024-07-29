@@ -34,9 +34,10 @@ export default function RootLayout() {
         <Stack.Screen name="InvoiceSearchResult" />
         <Stack.Screen name="Details" />
         <Stack.Screen name="SecondScreen" />
-        <Stack.Screen name="Scanner"/>
+        <Stack.Screen name="Scanner" />
         <Stack.Screen name="+not-found" />
-       </Stack>
+       
+      </Stack>
     </ThemeProvider>
   );
 }
