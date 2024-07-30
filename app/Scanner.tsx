@@ -31,10 +31,10 @@ const Scanner: React.FC = () => {
         if (!prevValues.includes(data)) {
           const updatedValues = [...prevValues, data];
 
-          // Show alert with the scanned value
+          
           Alert.alert("Scanned QR Code", `Value: ${data}`);
 
-          // Decrement remainingQuantity only after adding a new scan
+          
           setRemainingQuantity(prevQuantity => prevQuantity - 1);
 
           return updatedValues;

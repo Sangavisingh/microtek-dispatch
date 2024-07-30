@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 
 const Details: React.FC = () => {
   const { scannedValues, qnty } = useLocalSearchParams();
-  const quantity = qnty ? Number(qnty) : 0;
+  const initialQuantity = qnty ? Number(qnty) : 0;
 
-  const scannedArray = scannedValues ? JSON.parse(decodeURIComponent(scannedValues as string)) : [];
-  console.log('scannedArray:', scannedArray);
+  const [quantity, setQuantity] = useState(initialQuantity);
+  const [scannedArray, setScannedArray] = useState<string[]>(scannedValues ? JSON.parse(decodeURIComponent(scannedValues as string)) : []);
+
+  const router = useRouter();
 
   const extractSerialNumber = (qrCodeData: string) => {
     const urlMatch = qrCodeData.match(/i=([^&]+)/);
@@ -20,18 +23,11 @@ const Details: React.FC = () => {
   };
 
   const serialNumbers = scannedArray.map((value: string) => extractSerialNumber(value));
-  console.log('quantity:', quantity);
-
-  const router = useRouter();
 
   const handleClearAll = () => {
-    router.push({
-      pathname: '/Scanner',
-      params: {
-        qnty: quantity, // Reset to original quantity
-        scannedValues: encodeURIComponent(JSON.stringify([]))
-      }
-    });
+    setQuantity(initialQuantity);
+    console.log('initialQuantity::'+initialQuantity);
+    setScannedArray([]);
   };
 
   return (
@@ -41,10 +37,15 @@ const Details: React.FC = () => {
           <Button title="Validate All" color="#ffffff" onPress={() => { /* Handle press */ }} />
         </View>
         <View style={styles.buttonWrapper}>
-          <Button title="Clear All" color="#ffffff" onPress={handleClearAll} />
+        <Link
+            href="/InvoiceSearchResult" 
+            style={styles.linkButton}
+          >
+            Clear All
+          </Link>
         </View>
       </View>
-      
+
       <View style={styles.resultsContainer}>
         {serialNumbers.length > 0 ? (
           serialNumbers.map((value: string, index: number) => (
@@ -56,7 +57,7 @@ const Details: React.FC = () => {
           <Text style={styles.noScanText}>No scanned values</Text>
         )}
       </View>
-     
+
       <View style={styles.footer}>
         {quantity > 0 ? (
           <Button
@@ -65,7 +66,7 @@ const Details: React.FC = () => {
               router.push({
                 pathname: '/Scanner',
                 params: {
-                  qnty: quantity, // Pass remaining quantity
+                  qnty: quantity, 
                   scannedValues: encodeURIComponent(JSON.stringify(scannedArray))
                 }
               });
@@ -89,11 +90,11 @@ const styles = StyleSheet.create({
   resultsContainer: {
     flex: 1,
     justifyContent: 'center',
-    marginBottom : 450,
+    marginBottom: 450,
   },
   resultItem: {
-    marginBottom: 5, // Reduced margin for less gap
-    padding: 15,    // Adjusted padding
+    marginBottom: 5, 
+    padding: 15,    
     backgroundColor: '#325180',
     borderRadius: 8,
   },
@@ -124,6 +125,14 @@ const styles = StyleSheet.create({
   qntyText: {
     color: '#ffffff',
     fontSize: 20,
+  },
+  linkButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    color: '#ffffff',
+    textAlign: 'center',
   },
 });
 
