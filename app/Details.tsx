@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
-import { useLocalSearchParams, Link } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 const Details: React.FC = () => {
   const { scannedValues, qnty } = useLocalSearchParams();
@@ -22,6 +22,18 @@ const Details: React.FC = () => {
   const serialNumbers = scannedArray.map((value: string) => extractSerialNumber(value));
   console.log('quantity:', quantity);
 
+  const router = useRouter();
+
+  const handleClearAll = () => {
+    router.push({
+      pathname: '/Scanner',
+      params: {
+        qnty: quantity, // Reset to original quantity
+        scannedValues: encodeURIComponent(JSON.stringify([]))
+      }
+    });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
@@ -29,7 +41,7 @@ const Details: React.FC = () => {
           <Button title="Validate All" color="#ffffff" onPress={() => { /* Handle press */ }} />
         </View>
         <View style={styles.buttonWrapper}>
-          <Button title="Clear All" color="#ffffff" onPress={() => { /* Handle press */ }} />
+          <Button title="Clear All" color="#ffffff" onPress={handleClearAll} />
         </View>
       </View>
       
@@ -46,9 +58,22 @@ const Details: React.FC = () => {
       </View>
      
       <View style={styles.footer}>
-        <Link href={`/Scanner?qnty=${quantity}`} style={styles.qntyLink}>
-          <Text style={styles.qntyText}>Scan for Quantity: {isNaN(quantity) ? 'N/A' : quantity}</Text>
-        </Link>
+        {quantity > 0 ? (
+          <Button
+            title={`Scan More (Remaining: ${quantity})`}
+            onPress={() => {
+              router.push({
+                pathname: '/Scanner',
+                params: {
+                  qnty: quantity, // Pass remaining quantity
+                  scannedValues: encodeURIComponent(JSON.stringify(scannedArray))
+                }
+              });
+            }}
+          />
+        ) : (
+          <Text style={styles.qntyText}>No more scans needed</Text>
+        )}
       </View>
     </View>
   );
@@ -99,9 +124,6 @@ const styles = StyleSheet.create({
   qntyText: {
     color: '#ffffff',
     fontSize: 20,
-  },
-  qntyLink: {
-    textDecorationLine: 'none',
   },
 });
 
