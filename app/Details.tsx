@@ -1,29 +1,26 @@
 import React from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
 import { useLocalSearchParams, Link } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const Details: React.FC = () => {
   const { scannedValues, qnty } = useLocalSearchParams();
   const quantity = qnty ? Number(qnty) : 0;
 
-  
   const scannedArray = scannedValues ? JSON.parse(decodeURIComponent(scannedValues as string)) : [];
+  console.log('scannedArray:', scannedArray);
 
-  
   const extractSerialNumber = (qrCodeData: string) => {
-   
     const urlMatch = qrCodeData.match(/i=([^&]+)/);
     if (urlMatch) {
-      return urlMatch[1]; 
+      return urlMatch[1];
     }
 
-    
     const parts = qrCodeData.split('/');
-    return parts.pop() || qrCodeData; 
+    return parts.pop() || qrCodeData;
   };
 
   const serialNumbers = scannedArray.map((value: string) => extractSerialNumber(value));
+  console.log('quantity:', quantity);
 
   return (
     <View style={styles.container}>
@@ -35,10 +32,8 @@ const Details: React.FC = () => {
           <Button title="Clear All" color="#ffffff" onPress={() => { /* Handle press */ }} />
         </View>
       </View>
-      <LinearGradient
-        colors={['#325180', '#203C58']}
-        style={styles.productContainer}
-      >
+      
+      <View style={styles.resultsContainer}>
         {serialNumbers.length > 0 ? (
           serialNumbers.map((value: string, index: number) => (
             <View key={index} style={styles.resultItem}>
@@ -46,9 +41,10 @@ const Details: React.FC = () => {
             </View>
           ))
         ) : (
-          <Text style={styles.noScanText}>No QR codes scanned yet.</Text>
+          <Text style={styles.noScanText}>No scanned values</Text>
         )}
-      </LinearGradient>
+      </View>
+     
       <View style={styles.footer}>
         <Link href={`/Scanner?qnty=${quantity}`} style={styles.qntyLink}>
           <Text style={styles.qntyText}>Scan for Quantity: {isNaN(quantity) ? 'N/A' : quantity}</Text>
@@ -65,14 +61,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 10,
   },
+  resultsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    marginBottom : 450,
+  },
   resultItem: {
-    marginBottom: 10,
-    padding: 10,
-    backgroundColor: '#ffffff',
+    marginBottom: 5, // Reduced margin for less gap
+    padding: 15,    // Adjusted padding
+    backgroundColor: '#325180',
     borderRadius: 8,
   },
   resultText: {
     fontSize: 18,
+    color: '#ffffff',
   },
   noScanText: {
     fontSize: 18,
@@ -82,6 +84,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginVertical: 20,
+    marginTop: 60,
   },
   buttonWrapper: {
     flex: 1,
@@ -99,11 +102,6 @@ const styles = StyleSheet.create({
   },
   qntyLink: {
     textDecorationLine: 'none',
-  },
-  productContainer: {
-    marginTop: 20,
-    padding: 16,
-    borderRadius: 8,
   },
 });
 
