@@ -23,7 +23,6 @@ const InvoiceSearch = () => {
   const handleSearch = async () => {
     try {
       console.log('invoiceNumber@@:', invoiceNumber);
-      
       const username = 'miplapp'; 
       const password = 'App@1234'; 
       const credentials = base64.encode(`${username}:${password}`);
@@ -45,7 +44,7 @@ const InvoiceSearch = () => {
       const data = await response.json();
       console.log('data@@@' + JSON.stringify(data));
       
-      // Extract necessary fields from the received data
+      
       const { invoiceno, invoicedate, invoicestatus,custcode,custname, plantcode,invoiceitemlist } = data;
       setInvoiceData({ invoiceno, invoicedate, invoicestatus, custcode,custname,plantcode,invoiceitemlist });
     } catch (error) {
