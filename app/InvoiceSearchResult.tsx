@@ -24,10 +24,10 @@ const InvoiceSearch = () => {
     try {
       console.log('invoiceNumber@@:', invoiceNumber);
       const username = 'miplapp'; 
-      const password = 'App@1234'; 
+      const password = 'Miplapp@09876'; 
       const credentials = base64.encode(`${username}:${password}`);
 
-      const response = await fetch(`http://10.255.38.8:8000/dispatchinquiry/dispatchinquiry?sap-client=600&VBELN=${invoiceNumber}&WERKS=1001&APPUSERID=&APPVERSION=%27%27`, {
+      const response = await fetch(`http://10.255.38.7:8000/dispatchinquiry/dispatchinquiry?sap-client=400&VBELN=${invoiceNumber}&WERKS=1001&APPUSERID=&APPVERSION=%27%27`, {
         method: 'GET',
         headers: {
           'Authorization': `Basic ${credentials}`,
