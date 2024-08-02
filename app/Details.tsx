@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Link } from 'expo-router';
 import base64 from 'base-64';
-import { Link } from 'expo-router';
+import Toast from 'react-native-root-toast';
 
 const Details: React.FC = () => {
   const { scannedValues, qnty } = useLocalSearchParams();
@@ -94,6 +94,110 @@ const Details: React.FC = () => {
     setShowSubmit(false);
   };
 
+  const handleSubmit = async () => {
+    try {
+      const username = 'miplapp'; 
+      const password = 'Miplapp@09876'; 
+      const credentials = base64.encode(`${username}:${password}`);
+  
+      const payload = {
+        invoiceno: "9290000000",
+        appuserid: "",
+        appversion: "''",
+        plantcode: "1076",
+        custcode: "0001000180",
+        custname: "Gupta Electronics",
+        invoicedate: "30.07.2024 17:32:10",
+        invoicestatus: "Approved",
+        invoiceitemlist: [
+          {
+            itemid: 10,
+            itemcode: "899-D10-9000",
+            itemdesc: "UPS EB 900",
+            qnty: 2,
+            invoiceitemserialnumber: serialNumbers.map((sn, index) => ({
+              itemsrid: index + 1,
+              itemid: 10,
+              serialno: sn,
+              status: "0",
+              statusdesc: ""
+            }))
+          }
+        ]
+      };
+  
+      const jsonString1 = JSON.stringify(payload);
+      console.log('Payload:', jsonString1);
+  
+      const response = await fetch(`http://10.255.38.7:8000/finalresub/finalresub?sap-client=400`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+        body: jsonString1
+      });
+  
+      const text = await response.text();
+  
+      if (response.ok) {
+        const result = JSON.parse(text);
+        console.log('Result@@', result);
+  
+        const typeid = result.typeid;
+        console.log('typeid::'+typeid);
+        const status = result.status;
+        console.log('status:'+status);
+  
+        if (typeid === "0" || typeid === "1") {
+          Toast.show(status, {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.BOTTOM,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            delay: 0,
+          });
+           
+        setTimeout(() => {
+          router.push('/InvoiceSearchResult');
+        }, 1500); 
+        
+        } else {
+          Toast.show('Submission failed', {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.BOTTOM,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            delay: 0,
+          });
+        }
+      } else {
+        console.error('Non-JSON response:', text);
+        Toast.show('Submission failed', {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0,
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting data:', error);
+      Toast.show('Submission failed', {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.BOTTOM,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+    }
+  };
+  
+
   const resultItemStyle = (index: number) => ({
     marginBottom: 5,
     padding: 15,
@@ -154,7 +258,7 @@ const Details: React.FC = () => {
 
       {showSubmit && (
         <View style={styles.submitContainer}>
-          <Button title="Submit" onPress={() => { /* Handle submit action */ }} />
+          <Button title="Submit" onPress={handleSubmit} />
         </View>
       )}
     </View>

@@ -7,6 +7,7 @@ import 'react-native-reanimated';
 
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { RootSiblingParent } from 'react-native-root-siblings'; 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -28,6 +29,7 @@ export default function RootLayout() {
   }
 
   return (
+    <RootSiblingParent>
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -39,5 +41,6 @@ export default function RootLayout() {
        
       </Stack>
     </ThemeProvider>
+    </RootSiblingParent>
   );
 }
