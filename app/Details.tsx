@@ -171,10 +171,10 @@ const Details: React.FC = () => {
   };
 
   const handleClearAll = () => {
-  // Calculate the total quantity from invoiceData
+ 
   const totalQuantity = invoiceData?.invoiceitemlist.reduce((sum, item) => sum + item.qnty, 0) || 0;
 
-  setQuantity(totalQuantity); // Set quantity to the total quantity from invoiceData
+  setQuantity(totalQuantity); 
   setScannedArray([]);
   setValidationStatus({});
   setShowSubmit(false);
@@ -185,16 +185,16 @@ const Details: React.FC = () => {
       throw new Error('Invoice data is not available.');
     }
   
-    // Generate serial number list from scanned values
+   
     const serialNumbers = scannedValues.map((serialno, index) => ({
       itemsrid: index + 1,
-      itemid: invoiceData.invoiceitemlist[0].itemid, // Assuming single item in list
+      itemid: invoiceData.invoiceitemlist[0].itemid, 
       serialno: extractSerialNumber(serialno),
-      status: "0", // Placeholder status
-      statusdesc: "" // Placeholder status description
+      status: "0", 
+      statusdesc: "" 
     }));
   
-    // Construct payload
+    
     const payload = {
       invoiceno: invoiceData.invoiceno,
       appuserid: invoiceData.appuserid ,
