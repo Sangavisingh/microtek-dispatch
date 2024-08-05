@@ -5,7 +5,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import base64 from 'base-64';
 import { LinearGradient } from 'expo-linear-gradient';
 
-// Define the type for your invoice data
 interface InvoiceData {
   invoiceno: string;
   invoicedate: string;
@@ -44,9 +43,8 @@ const InvoiceSearch = () => {
       const data = await response.json();
       console.log('data@@@' + JSON.stringify(data));
       
-      
-      const { invoiceno, invoicedate, invoicestatus,custcode,custname, plantcode,invoiceitemlist } = data;
-      setInvoiceData({ invoiceno, invoicedate, invoicestatus, custcode,custname,plantcode,invoiceitemlist });
+      const { invoiceno, invoicedate, invoicestatus, custcode, custname, plantcode, invoiceitemlist } = data;
+      setInvoiceData({ invoiceno, invoicedate, invoicestatus, custcode, custname, plantcode, invoiceitemlist });
     } catch (error) {
       console.error('There has been a problem with your fetch operation:', error);
     }
@@ -77,7 +75,7 @@ const InvoiceSearch = () => {
   );
 };
 
-const ProductDetails: React.FC<{ items: { itemid: number; itemcode: string; itemdesc: string; qnty: number }[] }> = ({ items }) => (
+const ProductDetails: React.FC<{ items: { itemid: number; itemcode: string; itemdesc: string; qnty: number }[]; invoiceData: InvoiceData }> = ({ items, invoiceData }) => (
   <LinearGradient
     colors={['#325180', '#203C58']} // Light blue to dark blue
     style={styles.productContainer}
@@ -94,9 +92,9 @@ const ProductDetails: React.FC<{ items: { itemid: number; itemcode: string; item
         <Text style={styles.text2}>{item.itemcode}</Text>
         <Text style={styles.text2}>{item.itemdesc}</Text>
         <Text style={styles.text2}>{item.qnty}</Text>
-        <Link href={`/Details?qnty=${item.qnty}`} style={styles.clickHere}>
-  <Text>Click Here</Text>
-</Link>
+        <Link href={`/Details?qnty=${item.qnty}&data=${encodeURIComponent(JSON.stringify(invoiceData))}`} style={styles.clickHere}>
+          <Text>Click Here</Text>
+        </Link>
       </View>
     ))}
   </LinearGradient>
@@ -115,10 +113,9 @@ const InvoiceTable: React.FC<{ data: InvoiceData }> = ({ data }) => (
         <Text style={styles.text}>custcode: {data.custcode}</Text>
         <Text style={styles.text}>custname: {data.custname}</Text>
         <Text style={styles.text}>plantcode: {data.plantcode}</Text>
-        
       </View>
     </LinearGradient>
-    <ProductDetails items={data.invoiceitemlist} />
+    <ProductDetails items={data.invoiceitemlist} invoiceData={data} />
   </View>
 );
 
@@ -171,18 +168,16 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#FFFFFF',
-   
   },
   text2: {
     color: '#FFFFFF',
-    fontSize : 9,
+    fontSize: 9,
   },
   clickHere: {
     color: '#ffcc00',
     fontSize: 10,
     textDecorationLine: 'underline',
   },
-
 });
 
 export default InvoiceSearch;
