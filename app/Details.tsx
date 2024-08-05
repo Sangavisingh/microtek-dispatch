@@ -81,7 +81,7 @@ const Details: React.FC = () => {
       console.log('Invoice Data is not available yet.');
     }
   }, [invoiceData]);
-  
+
   // Decode and parse the data directly
   //if (encodedData && !invoiceData) {
     //try {
@@ -171,11 +171,14 @@ const Details: React.FC = () => {
   };
 
   const handleClearAll = () => {
-    setQuantity(initialQuantity);
-    setScannedArray([]);
-    setValidationStatus({});
-    setShowSubmit(false);
-  };
+  // Calculate the total quantity from invoiceData
+  const totalQuantity = invoiceData?.invoiceitemlist.reduce((sum, item) => sum + item.qnty, 0) || 0;
+
+  setQuantity(totalQuantity); // Set quantity to the total quantity from invoiceData
+  setScannedArray([]);
+  setValidationStatus({});
+  setShowSubmit(false);
+};
   
   const createPayload = (invoiceData: InvoiceData, scannedValues: string[]) => {
     if (!invoiceData) {
@@ -315,12 +318,11 @@ const Details: React.FC = () => {
           />
         </View>
         <View style={styles.buttonWrapper}>
-          <Link
-            href="/InvoiceSearchResult"
-            style={styles.linkButton}
-          >
-            Clear All
-          </Link>
+         <Button
+            title="Clear All"
+            color="#ffffff"
+            onPress={handleClearAll}
+          />
         </View>
       </View>
 

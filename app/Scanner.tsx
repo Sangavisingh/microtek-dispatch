@@ -67,10 +67,19 @@ const Scanner: React.FC = () => {
         <View style={styles.box} />
       </View>
       <View style={styles.footer}>
-        {/* Always show the button after a scan, regardless of quantity */}
+         {/* Always show the button after a scan, regardless of quantity */}
         {scannedValues.length > 0 && (
           <Button
             title="Go to Details Page"
+            onPress={() => {
+              router.push(`/Details?scannedValues=${encodeURIComponent(JSON.stringify(scannedValues))}&qnty=${remainingQuantity}`);
+            }}
+          />
+        )}
+         {/* Show the Go Back button only if there are no scanned values */}
+         {scannedValues.length === 0 && (
+          <Button
+            title="Go Back"
             onPress={() => {
               router.push(`/Details?scannedValues=${encodeURIComponent(JSON.stringify(scannedValues))}&qnty=${remainingQuantity}`);
             }}
