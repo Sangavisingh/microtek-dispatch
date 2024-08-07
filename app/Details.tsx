@@ -1,5 +1,5 @@
 import React, { useState ,useEffect} from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button ,TouchableOpacity ,ScrollView} from 'react-native';
 import { useLocalSearchParams, useRouter, Link } from 'expo-router';
 import base64 from 'base-64';
 import Toast from 'react-native-root-toast';
@@ -46,6 +46,7 @@ const Details: React.FC = () => {
   const [validationStatus, setValidationStatus] = useState<Record<number, boolean>>({});
   const [showSubmit, setShowSubmit] = useState(false);
   const [prevInvoiceNo, setPrevInvoiceNo] = useState<string | null>(null);
+  
   
 
   useEffect(() => {
@@ -95,7 +96,8 @@ const Details: React.FC = () => {
      // console.error('Error decoding invoice data:', error);
    // }
   //}
-
+ 
+  
   const router = useRouter();
 
   const extractSerialNumber = (qrCodeData: string) => {
@@ -115,7 +117,12 @@ const Details: React.FC = () => {
       console.error('Invoice data is not available.');
       return;
     }
-
+     
+    if (scannedArray.length === 0) {
+      setShowSubmit(false);
+      return;
+    }
+  
      try {
       const username = 'miplapp'; 
       const password = 'Miplapp@09876'; 
@@ -167,7 +174,7 @@ const Details: React.FC = () => {
       setValidationStatus(newStatus);
         setShowSubmit(true);
       } else {
-        console.error('Non-JSON response:', text);
+         console.error('Non-JSON response:', text);
       }
     } catch (error) {
       console.error('Error validating serial numbers:', error);
@@ -338,23 +345,24 @@ const Details: React.FC = () => {
       </View>
 
 
-      
-      <View style={styles.resultsContainer}>
+      <ScrollView contentContainerStyle={styles.resultsContainer}>
         {serialNumbers.length > 0 ? (
           serialNumbers.map((value: string, index: number) => (
             <View key={index} style={resultItemStyle(index)}>
               <Text style={styles.resultText}>Item {index + 1}: {value}</Text>
-             
-         {/* Display additional text only if the status is red */}
-        {validationStatus[index] === false && (
-          <Text style={styles.descriptionText}>Description Not available/already scanned/does not belong to location etc</Text>
-        )}
-             </View>
+              
+              {/* Display additional text only if the status is red */}
+              {validationStatus[index] === false && (
+                <Text style={styles.descriptionText}>
+                  Description Not available/already scanned/does not belong to location etc
+                </Text>
+              )}
+            </View>
           ))
         ) : (
           <Text style={styles.noScanText}>.</Text>
         )}
-      </View>
+      </ScrollView>
      
       <View style={styles.footer}>
         {quantity > 0 ? (
@@ -377,10 +385,19 @@ const Details: React.FC = () => {
         
       </View>
      
+     {!showSubmit && (
+            <View >
+              <Link href="/InvoiceSearchResult" style={styles.link}>
+                Back
+              </Link>
+            </View>
+          )}
 
-      {showSubmit && (
+   {showSubmit && quantity === 0 && (
         <View style={styles.submitContainer}>
-          <Button title="Submit" onPress={handleSubmit} />
+          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+            <Text style={styles.submitButtonText}>Submit</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>
@@ -416,7 +433,7 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     flex: 1,
-    backgroundColor: 'red',
+    backgroundColor: 'black',
     marginHorizontal: 5,
   },
   footer: {
@@ -437,14 +454,42 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   submitContainer: {
-    padding: 10,
     alignItems: 'center',
+    margin: 10,
+  },
+  submitButton: {
+    backgroundColor: '#007bff', // Replace with your variable color
+    paddingVertical: 12, // Vertical padding
+    paddingHorizontal: 24, // Horizontal padding
+    borderRadius: 25, // Rounded corners
+    alignItems: 'center',
+    shadowColor: 'rgba(0, 0, 0, 0.05)', // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset
+    shadowOpacity: 1, // Shadow opacity
+    shadowRadius: 5, // Shadow radius
+    elevation: 5, // Android shadow
+  },
+  submitButtonText: {
+    color: '#ffffff', // White text color
+    fontSize: 16, // Font size
   },
   descriptionText: {
     color: 'white', // Or any color/style you prefer
     fontSize: 14,
     marginTop: 5,
   },
+  
+  link: {
+    fontSize: 18,
+    color: 'white',
+    backgroundColor: 'black',
+    padding: 10,
+    borderRadius: 5,
+    textAlign: 'center',
+    textDecorationLine: 'none',
+    margin: 10,
+  },
+ 
 });
 
 export default Details;
