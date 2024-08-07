@@ -31,6 +31,7 @@ interface InvoiceData {
   invoiceitemlist: InvoiceItem[];
 }
 
+
 const Details: React.FC = () => {
   const { scannedValues, qnty, data: encodedData } = useLocalSearchParams();
   console.log('Scanned Values:', scannedValues);
@@ -44,6 +45,8 @@ const Details: React.FC = () => {
   const [scannedArray, setScannedArray] = useState<string[]>(scannedValues ? JSON.parse(decodeURIComponent(scannedValues as string)) : []);
   const [validationStatus, setValidationStatus] = useState<Record<number, boolean>>({});
   const [showSubmit, setShowSubmit] = useState(false);
+  const [prevInvoiceNo, setPrevInvoiceNo] = useState<string | null>(null);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,18 +74,18 @@ const Details: React.FC = () => {
     fetchData();
   }, [encodedData]);
   console.log('after page change::'+encodedData);
-  console.log('immutableData::'+immutableData);
-
+  console.log('immutableData@@'+immutableData);
   
-   useEffect(() => {
-    if (invoiceData) {
-      console.log('Invoice Number:', invoiceData.invoiceno);
-    } else {
-      console.log('Invoice Data is not available yet.');
+  useEffect(() => {
+    if (invoiceData && invoiceData.invoiceno !== prevInvoiceNo) {
+      // Page reload logic when invoice number changes
+      setPrevInvoiceNo(invoiceData.invoiceno);
+      resetQuantity(); // Clear previous data
+      // Optionally, trigger additional actions or navigation here
     }
-  }, [invoiceData]);
-
-  // Decode and parse the data directly
+  }, [invoiceData, prevInvoiceNo]);
+  
+   // Decode and parse the data directly
   //if (encodedData && !invoiceData) {
     //try {
      // const decodedData = decodeURIComponent(encodedData as string);
@@ -159,8 +162,9 @@ const Details: React.FC = () => {
           },
           {} as Record<number, boolean>
         );
-
-        setValidationStatus(newStatus);
+        
+       
+      setValidationStatus(newStatus);
         setShowSubmit(true);
       } else {
         console.error('Non-JSON response:', text);
@@ -170,10 +174,15 @@ const Details: React.FC = () => {
     }
   };
 
-  const handleClearAll = () => {
- 
-  const totalQuantity = invoiceData?.invoiceitemlist.reduce((sum, item) => sum + item.qnty, 0) || 0;
+  const resetQuantity = () => {
+    //const totalQuantity = invoiceData?.invoiceitemlist.reduce((sum, item) => sum + item.qnty, 0) || 0;
+    console.log('initialQuantity::::@@'+initialQuantity);
+    setQuantity(initialQuantity);
+  };
 
+  const handleClearAll = () => {
+  const totalQuantity = invoiceData?.invoiceitemlist.reduce((sum, item) => sum + item.qnty, 0) || 0;
+  console.log('totalQuantity::'+totalQuantity);
   setQuantity(totalQuantity); 
   setScannedArray([]);
   setValidationStatus({});
@@ -262,10 +271,11 @@ const Details: React.FC = () => {
             hideOnPress: true,
             delay: 0,
           });
-
-          setTimeout(() => {
+           setTimeout(() => {
+            handleClearAll();
             router.push('/InvoiceSearchResult');
           }, 1500);
+
         } else {
           Toast.show('Submission failed', {
             duration: Toast.durations.LONG,
@@ -306,6 +316,7 @@ const Details: React.FC = () => {
     backgroundColor: validationStatus[index] === true ? 'green' : validationStatus[index] === false ? 'red' : '#325180',
     borderRadius: 8,
   });
+ 
 
   return (
     <View style={styles.container}>
@@ -326,18 +337,25 @@ const Details: React.FC = () => {
         </View>
       </View>
 
+
+      
       <View style={styles.resultsContainer}>
         {serialNumbers.length > 0 ? (
           serialNumbers.map((value: string, index: number) => (
             <View key={index} style={resultItemStyle(index)}>
               <Text style={styles.resultText}>Item {index + 1}: {value}</Text>
-            </View>
+             
+         {/* Display additional text only if the status is red */}
+        {validationStatus[index] === false && (
+          <Text style={styles.descriptionText}>Description Not available/already scanned/does not belong to location etc</Text>
+        )}
+             </View>
           ))
         ) : (
           <Text style={styles.noScanText}>.</Text>
         )}
       </View>
-
+     
       <View style={styles.footer}>
         {quantity > 0 ? (
           <Button
@@ -356,7 +374,9 @@ const Details: React.FC = () => {
         ) : (
           <Text style={styles.qntyText}>No more scans needed</Text>
         )}
+        
       </View>
+     
 
       {showSubmit && (
         <View style={styles.submitContainer}>
@@ -364,13 +384,14 @@ const Details: React.FC = () => {
         </View>
       )}
     </View>
+     
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#fce7f3',
     justifyContent: 'space-between',
     padding: 10,
   },
@@ -418,6 +439,11 @@ const styles = StyleSheet.create({
   submitContainer: {
     padding: 10,
     alignItems: 'center',
+  },
+  descriptionText: {
+    color: 'white', // Or any color/style you prefer
+    fontSize: 14,
+    marginTop: 5,
   },
 });
 

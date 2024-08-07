@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
 import Icon from 'react-native-vector-icons/Ionicons';
 import base64 from 'base-64';
-import { LinearGradient } from 'expo-linear-gradient';
 
 interface InvoiceData {
   invoiceno: string;
@@ -11,7 +10,7 @@ interface InvoiceData {
   invoicestatus: string;
   custcode: string;
   custname: string;
-  plantcode: string,
+  plantcode: string;
   invoiceitemlist: { itemid: number; itemcode: string; itemdesc: string; qnty: number }[];
 }
 
@@ -21,9 +20,8 @@ const InvoiceSearch = () => {
 
   const handleSearch = async () => {
     try {
-      console.log('invoiceNumber@@:', invoiceNumber);
-      const username = 'miplapp'; 
-      const password = 'Miplapp@09876'; 
+      const username = 'miplapp';
+      const password = 'Miplapp@09876';
       const credentials = base64.encode(`${username}:${password}`);
 
       const response = await fetch(`http://10.255.38.7:8000/dispatchinquiry/dispatchinquiry?sap-client=400&VBELN=${invoiceNumber}&WERKS=1001&APPUSERID=&APPVERSION=%27%27`, {
@@ -34,15 +32,11 @@ const InvoiceSearch = () => {
         }
       });
 
-      console.log('response@@@', JSON.stringify(response));
-
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
 
       const data = await response.json();
-      console.log('data@@@' + JSON.stringify(data));
-      
       const { invoiceno, invoicedate, invoicestatus, custcode, custname, plantcode, invoiceitemlist } = data;
       setInvoiceData({ invoiceno, invoicedate, invoicestatus, custcode, custname, plantcode, invoiceitemlist });
     } catch (error) {
@@ -51,132 +45,180 @@ const InvoiceSearch = () => {
   };
 
   return (
-    <LinearGradient
-      colors={['#ADD8E6', '#325180']} // Light blue to dark blue
-      style={styles.container}
-    >
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={invoiceNumber}
-          onChangeText={setInvoiceNumber}
-          placeholder="Enter Invoice Number"
-        />
-        <TouchableOpacity onPress={handleSearch} style={styles.iconButton}>
-          <Icon name="search" size={30} color="#000" />
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <ScrollView >
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={invoiceNumber}
+            onChangeText={setInvoiceNumber}
+            placeholder="Enter Invoice Number"
+            placeholderTextColor="#000"
+          />
+          <TouchableOpacity onPress={handleSearch} style={styles.iconButton}>
+            <Icon name="search" size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
+        {invoiceData && <InvoiceTable data={invoiceData} />}
+        <Link href="/SecondScreen" style={styles.link}>
+          <Text style={styles.linkText}></Text>
+        </Link>
+      </ScrollView>
+      <View style={styles.footer}>
+        <Link href="/" style={styles.logoutButton}>
+          <Text style={styles.logoutButtonText}>Log Out</Text>
+        </Link>
       </View>
-      {invoiceData && <InvoiceTable data={invoiceData} />}
-      {/* Use Link from Expo Router to navigate */}
-      <Link href="/SecondScreen" style={styles.link}>
-        <Text>Go to Result</Text>
-      </Link>
-    </LinearGradient>
+    </View>
   );
 };
 
 const ProductDetails: React.FC<{ items: { itemid: number; itemcode: string; itemdesc: string; qnty: number }[]; invoiceData: InvoiceData }> = ({ items, invoiceData }) => (
-  <LinearGradient
-    colors={['#325180', '#203C58']} // Light blue to dark blue
-    style={styles.productContainer}
-  >
-    <Text style={styles.text}>Product Details</Text>
+  <View style={styles.card}>
+    <Text style={styles.cardTitle}>Product Details</Text>
     <View style={styles.tableRow}>
-      <Text style={[styles.text, styles.tableHeader]}>Item Code</Text>
-      <Text style={[styles.text, styles.tableHeader]}>Description</Text>
-      <Text style={[styles.text, styles.tableHeader]}>Quantity</Text>
-      <Text style={[styles.text, styles.tableHeader]}>Action</Text>
+      <Text style={[styles.text, styles.tableHeader, styles.itemCode]}>Item Code</Text>
+      <Text style={[styles.text, styles.tableHeader, styles.itemDesc]}>Description</Text>
+      <Text style={[styles.text, styles.tableHeader, styles.qnty]}>Quantity</Text>
+      <Text style={[styles.text, styles.tableHeader, styles.action]}>Action</Text>
     </View>
     {items.map(item => (
       <View key={item.itemid} style={styles.tableRow}>
-        <Text style={styles.text2}>{item.itemcode}</Text>
-        <Text style={styles.text2}>{item.itemdesc}</Text>
-        <Text style={styles.text2}>{item.qnty}</Text>
-        <Link href={`/Details?qnty=${item.qnty}&data=${encodeURIComponent(JSON.stringify(invoiceData))}`} style={styles.clickHere}>
-          <Text>Click Here</Text>
+        <Text style={[styles.text, styles.itemCode]}>{item.itemcode}</Text>
+        <Text style={[styles.text, styles.itemDesc]}>{item.itemdesc}</Text>
+        <Text style={[styles.text, styles.qnty]}>{item.qnty}</Text>
+        <Link href={`/Details?qnty=${item.qnty}&data=${encodeURIComponent(JSON.stringify(invoiceData))}`} style={styles.link}>
+          <Text style={styles.clickHere}>Click Here</Text>
         </Link>
       </View>
     ))}
-  </LinearGradient>
+  </View>
 );
 
 const InvoiceTable: React.FC<{ data: InvoiceData }> = ({ data }) => (
   <View>
-    <LinearGradient
-      colors={['#325180', '#203C58']} // Light blue to dark blue
-      style={styles.invoiceContainer}
-    >
-      <View style={styles.innerContainer}>
-        <Text style={styles.text}>Invoice Number: {data.invoiceno}</Text>
-        <Text style={styles.text}>Date: {data.invoicedate}</Text>
-        <Text style={styles.text}>Status: {data.invoicestatus}</Text>
-        <Text style={styles.text}>custcode: {data.custcode}</Text>
-        <Text style={styles.text}>custname: {data.custname}</Text>
-        <Text style={styles.text}>plantcode: {data.plantcode}</Text>
-      </View>
-    </LinearGradient>
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>Invoice Information</Text>
+      <Text style={styles.text}>Invoice Number: {data.invoiceno}</Text>
+      <Text style={styles.text}>Date: {data.invoicedate}</Text>
+      <Text style={styles.text}>Status: {data.invoicestatus}</Text>
+      <Text style={styles.text}>Customer Code: {data.custcode}</Text>
+      <Text style={styles.text}>Customer Name: {data.custname}</Text>
+      <Text style={styles.text}>Plant Code: {data.plantcode}</Text>
+    </View>
     <ProductDetails items={data.invoiceitemlist} invoiceData={data} />
   </View>
 );
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 16,
+    backgroundColor: '#fce7f3',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
     marginTop: 50,
+    borderColor: 'black',
+    borderWidth: 1,
+    borderRadius: 30,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
   },
   input: {
     flex: 1,
     height: 40,
-    borderColor: 'black',
-    borderWidth: 1,
+    borderColor: 'transparent',
     paddingHorizontal: 10,
+    borderRadius: 30,
   },
   iconButton: {
-    padding: 10,
+    padding: 5,
   },
-  invoiceContainer: {
-    marginTop: 20,
-    padding: 16,
+  card: {
+    backgroundColor: '#000',
     borderRadius: 8,
-  },
-  productContainer: {
-    marginTop: 20,
     padding: 16,
-    borderRadius: 8,
-  },
-  innerContainer: {
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 10,
   },
   tableRow: {
-    display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
+    paddingVertical: 8,
   },
   tableHeader: {
     fontWeight: 'bold',
+  },
+  text: {
+    color: '#fff',
+  },
+  itemCode: {
+    flex: 1,
+    textAlign: 'left',
+  },
+  itemDesc: {
+    flex: 2,
+    marginLeft: 6,
+    textAlign: 'left',
+  },
+  qnty: {
+    flex: 1,
+    marginRight: 20,
+    textAlign: 'center',
+  },
+  action: {
+    flex: 1,
+    textAlign: 'center',
   },
   link: {
     marginTop: 10,
     alignItems: 'center',
   },
-  text: {
-    color: '#FFFFFF',
-  },
-  text2: {
-    color: '#FFFFFF',
-    fontSize: 9,
+  linkText: {
+    color: '#0000ff',
+    textDecorationLine: 'underline',
   },
   clickHere: {
-    color: '#ffcc00',
-    fontSize: 10,
+    color: '#0000ff',
     textDecorationLine: 'underline',
+  },
+  footer: {
+    backgroundColor: '#fff',
+    padding: 16,
+    alignItems: 'center',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  logoutButton: {
+    backgroundColor: '#000',
+    borderRadius: 30,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

@@ -33,13 +33,12 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="InvoiceSearchResult" options={{ headerShown: false }} />
+       <Stack.Screen name="InvoiceSearchResult" options={{ headerShown: false }} />
         <Stack.Screen name="Details"  options={{ headerShown: false }} />
         <Stack.Screen name="SecondScreen"  options={{ headerShown: false }} />
         <Stack.Screen name="Scanner"    options={{ headerShown: false }}  />
         <Stack.Screen name="+not-found"   options={{ headerShown: false }} />
-       
-      </Stack>
+       </Stack>
     </ThemeProvider>
     </RootSiblingParent>
   );
