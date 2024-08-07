@@ -10,10 +10,7 @@ export default function Screentwo() {
     
         
       <ThemedView style={styles.container}>
-      <ImageBackground
-        source={require('@/assets/images/image.png')}
-        style={styles.background}
-      />
+     
        <ThemedView style={styles.card}>
           <ThemedText type="subtitle" style={styles.subtitle}>Select scanning device</ThemedText>
           <View style={styles.buttonContainer}>
@@ -23,7 +20,7 @@ export default function Screentwo() {
             <Link href="/screen2" style={styles.button}>
               <ThemedText type="link">CiperLab Scanner</ThemedText>
             </Link>
-            <Link href="/Scanner" style={styles.button}>
+            <Link href="/InvoiceSearchResult" style={styles.button}>
               <ThemedText type="link">Android Camera</ThemedText>
             </Link>
           </View>
@@ -39,7 +36,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#fff'
+    backgroundColor: 'black'
   },
   link: {
     marginTop: 15,

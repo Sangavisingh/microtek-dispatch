@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-
+import React, { useState ,useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,39 +6,77 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
+  Alert
 } from 'react-native';
-import { Link } from 'expo-router'; // Import Link
+import base64 from 'base-64'; 
+import { useRouter } from 'expo-router'; 
 
-
-//@ts-ignore
 const LoginScreen = () => {
-  
- 
-  const [email, setEmail] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword] = useState('');
-  
-   const handleLogin = () => {
-    // Handle login logic here
-    console.log('Email:', email);
-    console.log('Password:', password);
-    
-    
+  const router = useRouter();
+
+  console.log('employeeId:::222'+employeeId);
+  console.log('password:::@@'+password);
+ 
+  useEffect(() => {
+     setEmployeeId('');
+    setPassword('');
+  }, []);
+
+
+  const handleLogin = async () => {
+    if (!employeeId || !password) {
+      Alert.alert('Login Failed', 'Employee ID and password cannot be empty.');
+      return;
+    }
+
+    try {
+      const credentials = base64.encode(`${employeeId}:${password}`);
+      const apiUrl = `http://10.255.38.8:8000/basicauth/basicauth?sap-client=600`;
+
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      console.log('data::', JSON.stringify(data));
+
+      if (data.status === 'You are authorized !!') { 
+        Alert.alert('Login Successful', 'You have successfully logged in.');
+         setEmployeeId('');
+        setPassword('');
+         router.push('/SecondScreen'); 
+        
+      } else {
+        Alert.alert('Login Failed', 'Invalid employee ID or password.');
+      }
+    } catch (error) {
+      console.error('There has been a problem with your fetch operation:', error);
+      Alert.alert('Error', 'An error occurred while logging in.');
+    }
   };
 
   return (
     <View style={styles.container}>
-      
       <ImageBackground
         source={require('@/assets/images/image.png')}
         style={styles.background}
       />
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="Employee ID"
         placeholderTextColor="#aaa"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
+        value={employeeId}
+        onChangeText={setEmployeeId}
         autoCapitalize="none"
       />
       <TextInput
@@ -51,9 +88,9 @@ const LoginScreen = () => {
         secureTextEntry
         autoCapitalize="none"
       />
-       <Link href="/InvoiceSearchResult" style={styles.button} onPress={handleLogin}>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
-      </Link>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -70,12 +107,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
   },
   input: {
     width: '80%',
