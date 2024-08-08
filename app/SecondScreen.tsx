@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginVertical: 5,
-    width: '100%', // Adjust width as needed
+    width: '100%', 
     alignItems: 'center',
   },
   background: {
@@ -69,6 +69,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: '#3b5998',
-    // other styles if needed
+    
   },
 });

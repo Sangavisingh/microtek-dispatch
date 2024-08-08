@@ -79,11 +79,9 @@ const Details: React.FC = () => {
   
   useEffect(() => {
     if (invoiceData && invoiceData.invoiceno !== prevInvoiceNo) {
-      // Page reload logic when invoice number changes
       setPrevInvoiceNo(invoiceData.invoiceno);
-      resetQuantity(); // Clear previous data
-      // Optionally, trigger additional actions or navigation here
-    }
+      resetQuantity(); 
+     }
   }, [invoiceData, prevInvoiceNo]);
   
    // Decode and parse the data directly
@@ -458,23 +456,23 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   submitButton: {
-    backgroundColor: '#007bff', // Replace with your variable color
-    paddingVertical: 12, // Vertical padding
-    paddingHorizontal: 24, // Horizontal padding
-    borderRadius: 25, // Rounded corners
+    backgroundColor: '#007bff', 
+    paddingVertical: 12, 
+    paddingHorizontal: 24, 
+    borderRadius: 25, 
     alignItems: 'center',
-    shadowColor: 'rgba(0, 0, 0, 0.05)', // Shadow color
-    shadowOffset: { width: 0, height: 2 }, // Shadow offset
-    shadowOpacity: 1, // Shadow opacity
-    shadowRadius: 5, // Shadow radius
-    elevation: 5, // Android shadow
+    shadowColor: 'rgba(0, 0, 0, 0.05)',
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 1, 
+    shadowRadius: 5, 
+    elevation: 5, 
   },
   submitButtonText: {
-    color: '#ffffff', // White text color
-    fontSize: 16, // Font size
+    color: '#ffffff',
+    fontSize: 16,
   },
   descriptionText: {
-    color: 'white', // Or any color/style you prefer
+    color: 'white', 
     fontSize: 14,
     marginTop: 5,
   },
