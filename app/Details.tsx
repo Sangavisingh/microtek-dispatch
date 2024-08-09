@@ -4,6 +4,8 @@ import { useLocalSearchParams, useRouter, Link } from 'expo-router';
 import base64 from 'base-64';
 import Toast from 'react-native-root-toast';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 
 interface InvoiceItemSerialNumber {
   itemsrid: number;
@@ -48,7 +50,6 @@ const Details: React.FC = () => {
   const [prevInvoiceNo, setPrevInvoiceNo] = useState<string | null>(null);
   
   
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -116,11 +117,13 @@ const Details: React.FC = () => {
       return;
     }
      
+    
+    
     if (scannedArray.length === 0) {
       setShowSubmit(false);
       return;
-    }
-  
+   }
+   
      try {
       const username = 'miplapp'; 
       const password = 'Miplapp@09876'; 
@@ -318,70 +321,82 @@ const Details: React.FC = () => {
   const resultItemStyle = (index: number) => ({
     marginBottom: 5,
     padding: 15,
-    backgroundColor: validationStatus[index] === true ? 'green' : validationStatus[index] === false ? 'red' : '#325180',
+   backgroundColor: validationStatus[index] === true ? 'green' : validationStatus[index] === false ? 'red' : '#325180',
+   //backgroundColor :'#325180',
     borderRadius: 8,
+    color: '#ffffff',
+    
   });
  
 
   return (
     <View style={styles.container}>
-      <View style={styles.buttonContainer}>
-        <View style={styles.buttonWrapper}>
-          <Button
-            title="Validate All"
-            color="#ffffff"
-            onPress={validateAll}
-          />
-        </View>
-        <View style={styles.buttonWrapper}>
-         <Button
-            title="Clear All"
-            color="#ffffff"
-            onPress={handleClearAll}
-          />
-        </View>
+  {scannedArray.length > 0 && (
+    <View style={styles.buttonContainer}>
+      <View style={styles.buttonWrapper}>
+        <Button 
+          title="Validate All"
+          //color="#ffffff"
+          onPress={validateAll}
+        />
       </View>
+      <View style={styles.buttonWrapper}>
+        <Button
+          title="Clear All"
+         //color="#ffffff"
+          onPress={handleClearAll}
+        />
+      </View>
+    </View>
+  )}
 
 
-      <ScrollView contentContainerStyle={styles.resultsContainer}>
-        {serialNumbers.length > 0 ? (
-          serialNumbers.map((value: string, index: number) => (
-            <View key={index} style={resultItemStyle(index)}>
-              <Text style={styles.resultText}>Item {index + 1}: {value}</Text>
-              
-              {/* Display additional text only if the status is red */}
-              {validationStatus[index] === false && (
-                <Text style={styles.descriptionText}>
-                  Description Not available/already scanned/does not belong to location etc
-                </Text>
-              )}
-            </View>
-          ))
-        ) : (
-          <Text style={styles.noScanText}>.</Text>
+<ScrollView>
+<View style={styles.resultsContainer}>
+  {serialNumbers.length > 0 ? (
+    serialNumbers.map((value: string, index: number) => (
+      <View key={index} style={resultItemStyle(index)}>
+        <Text style={[styles.resultText, { color: 'white' }]}>
+          Item {index + 1}: {value}
+        </Text>
+
+        {/* Display additional text only if the status is red */}
+        {validationStatus[index] === false && (
+          <Text style={styles.descriptionText}>
+            Description Not available/already scanned/does not belong to location etc
+          </Text>
         )}
-      </ScrollView>
+      </View>
+    ))
+  ) : (
+    <Text style={styles.noScanText}>.</Text>
+  )}
+</View>
+</ScrollView> 
      
-      <View style={styles.footer}>
-        {quantity > 0 ? (
-          <Button
-            title={`Scan More (Remaining: ${quantity})`}
-            onPress={() => {
-              router.push({
-                pathname: '/Scanner',
-                params: {
-                  qnty: quantity,
-                  invoiceData: encodeURIComponent(JSON.stringify(invoiceData)),
-                  scannedValues: encodeURIComponent(JSON.stringify(scannedArray))
-                }
-              });
-            }}
-          />
-        ) : (
-          <Text style={styles.qntyText}>No more scans needed</Text>
-        )}
-        
-      </View>
+    
+  
+    <View style={styles.footer}>
+      {quantity > 0 ? (
+        <Button
+          title={`Scan More (Remaining: ${quantity})`}
+          color='#eebf2d'
+          onPress={() => {
+            router.push({
+              pathname: '/Scanner',
+              params: {
+                qnty: quantity,
+                invoiceData: encodeURIComponent(JSON.stringify(invoiceData)),
+                scannedValues: encodeURIComponent(JSON.stringify(scannedArray))
+              }
+            });
+          }}
+        />
+      ) : (
+        <Text style={styles.qntyText}>No more scans needed</Text>
+      )}
+    </View>
+  
      
      {!showSubmit && (
             <View >
@@ -391,7 +406,8 @@ const Details: React.FC = () => {
             </View>
           )}
 
-   {showSubmit && quantity === 0 && (
+  
+{showSubmit && quantity === 0 && (
         <View style={styles.submitContainer}>
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
             <Text style={styles.submitButtonText}>Submit</Text>
@@ -411,13 +427,14 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   resultsContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    //justifyContent: 'center',
+    //backgroundColor: '#325180',
     marginBottom: 450,
+    
   },
   resultText: {
     fontSize: 18,
-    color: '#ffffff',
+    color: 'white',
   },
   noScanText: {
     fontSize: 18,
@@ -428,21 +445,31 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginVertical: 20,
     marginTop: 60,
+    
   },
   buttonWrapper: {
     flex: 1,
     backgroundColor: 'black',
     marginHorizontal: 5,
-  },
-  footer: {
+   },
+   buttontext:
+   {
+      color: '#ffff'
+   },
+   footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: '#eebf2d',
     padding: 10,
     alignItems: 'center',
+    marginBottom: 70,
   },
   qntyText: {
     color: '#ffffff',
     fontSize: 20,
-  },
+   },
   linkButton: {
     backgroundColor: 'red',
     padding: 10,
@@ -453,7 +480,13 @@ const styles = StyleSheet.create({
   },
   submitContainer: {
     alignItems: 'center',
-    margin: 10,
+    marginBottom: 20, 
+    //marginTop: 10, 
+    //position: 'absolute',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   submitButton: {
     backgroundColor: '#007bff', 
@@ -466,7 +499,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 1, 
     shadowRadius: 5, 
     elevation: 5, 
-  },
+   },
   submitButtonText: {
     color: '#ffffff',
     fontSize: 16,
@@ -487,6 +520,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'none',
     margin: 10,
   },
+ 
  
 });
 
